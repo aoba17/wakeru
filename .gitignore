@@ -16,3 +16,4 @@
 /.shadow-cljs/
 
 /dev
+database.edn
