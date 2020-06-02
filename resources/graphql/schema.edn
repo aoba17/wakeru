@@ -1,0 +1,13 @@
+{:objects
+ {:Stuff
+  {:description "ゴミ"
+   :fields      {:name     {:type (non-null String)}
+                 :category {:type (non-null String)}
+                 :remark   {:type (non-null String)}}}}
+
+ :queries
+ {:keyword_search
+  {:type        (list :Stuff)
+   :description "ゴミをキーワード検索"
+   :args        {:keyword {:type String}}
+   :resolve     :query/keyword_search}}}

@@ -36,12 +36,25 @@
   [dom]
   (html/select dom [:tbody]))
 
+(defn relative->absolute
+  ""
+  [remark]
+  (map
+    (fn [e]
+      (let [url (-> e :attrs :href)]
+        (if (and (map? e)
+                 url
+                 (not (re-find #"^http" url)))
+          (assoc-in e [:attrs :href] (str "https://www.city.sendai.jp" url))
+          e)))
+    remark))
+
 (defn tr->map
   ""
   [[name category remark]]
   {:name     (-> name :content first)
    :category (-> category :content first)
-   :remark   (-> remark :content)})
+   :remark   (-> remark :content relative->absolute pr-str)})
 
 (defn table->list
   ""
