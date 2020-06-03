@@ -6,19 +6,52 @@
             [com.walmartlabs.lacinia :as lacinia]
             [com.walmartlabs.lacinia.pedestal :as lp]
             [io.pedestal.http :as http]
-            [clojure.java.browse :refer [browse-url]]))
+            [clojure.java.browse :refer [browse-url]]
+            [clj-fuzzy.metrics :as metrics]
+            [clojure.string :as string]))
 
 (def database
   (-> (io/resource "graphql/database.edn")
       slurp
       edn/read-string))
 
+(defn n-gram
+  "N-gram インデックスの作成"
+  [n s]
+  (->> (partition n 1 s)
+       (map clojure.string/join)
+       (into #{})))
+
+(def bigram (partial n-gram 2))
+
+(defn bigram-score
+  "bigram検索"
+  [keyword target]
+  (count (clojure.set/intersection
+           (bigram keyword)
+           (bigram target))))
+
+(defn partial-match
+  "部分一致検索"
+  [keyword]
+  (->> database
+       (filter #(string/includes? (:name %) keyword))
+       (sort-by #(metrics/levenshtein keyword (:name %)))))
+
+(defn fizzy-match
+  "曖昧検索"
+  [keyword]
+  (->> database
+       (filter #(< 1 (bigram-score keyword (:name %))))
+       (sort-by #(metrics/levenshtein keyword (:name %)))))
+
+
 (defn resolve-keyword-search
-  ""
+  "キーワード検索"
   [_ {:keys [keyword]} _]
-  (filter
-    #(clojure.string/includes? (:name %) keyword)
-    database))
+  (if (< (count keyword) 3)
+    (partial-match keyword)
+    (fizzy-match keyword)))
 
 (def resolver-map {:query/keyword_search resolve-keyword-search})
 

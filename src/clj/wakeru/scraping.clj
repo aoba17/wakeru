@@ -49,10 +49,27 @@
           e)))
     remark))
 
+(defn parse-name
+  ""
+  [content]
+  (if (and (= (count content) 1)
+           (string? (first content)))
+    (first content)
+    (->> content
+         (map #(cond
+                 (string? %) %
+                 (map? %)    (-> % :content first)))
+         clojure.string/join)))
+
+(defn trim-symbol-char
+  ""
+  []
+  )
+
 (defn tr->map
   ""
   [[name category remark]]
-  {:name     (-> name :content first)
+  {:name     (-> name :content parse-name)
    :category (-> category :content first)
    :remark   (-> remark :content relative->absolute pr-str)})
 

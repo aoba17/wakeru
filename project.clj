@@ -15,7 +15,8 @@
                  [quil "3.1.0"]
                  [enlive "1.1.6"]
                  [http-kit "2.3.0"]
-                 [com.walmartlabs/lacinia-pedestal "0.13.0"]]
+                 [com.walmartlabs/lacinia-pedestal "0.13.0"]
+                 [clj-fuzzy "0.4.1"]]
 
   :plugins [[lein-shadow "0.2.0"]
             [lein-garden "0.3.0"]
